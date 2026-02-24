@@ -1,5 +1,7 @@
 # `taskwarrior-tui`
 
+This a fork of taskwarrior-tui, branched at the last version to support taskwarrior 2.6.x 
+
 [![CI](https://github.com/kdheepak/taskwarrior-tui/workflows/CI/badge.svg)](https://github.com/kdheepak/taskwarrior-tui/actions?query=workflow%3ACI)
 [![](https://img.shields.io/github/license/kdheepak/taskwarrior-tui)](./LICENSE)
 [![](https://img.shields.io/github/v/release/kdheepak/taskwarrior-tui)](https://github.com/kdheepak/taskwarrior-tui/releases/latest)
