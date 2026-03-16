@@ -1,0 +1,2 @@
+ still takes 6 seconds to open, and i'm not sure how to use it or if I like it, but IT WORKS! Let me play with it before we package it, startup time improvements  
+  would be good. According to the README (which will amending) tw-tui (rename) keeps configuration in .taskrc, but lets make a tui.rc to keep thos configs 

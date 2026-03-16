@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# tw-tui — wrapper for taskwarrior-tui
+# Launches tui with isolated TASKRC so context switches and TW system
+# writes (nag=, etc.) don't touch ~/.taskrc
+
+TUI_BIN="${HOME}/.task/scripts/taskwarrior-tui"
+TUI_RC="${HOME}/.task/config/tui.rc"
+
+[[ -x "$TUI_BIN" ]] || { echo "[tw-tui] Binary not found: $TUI_BIN" >&2; exit 1; }
+[[ -f "$TUI_RC"  ]] || { echo "[tw-tui] Config not found: $TUI_RC"  >&2; exit 1; }
+
+# Strip TW system-written lines (nag=) — these belong in ~/.taskrc, not tui.rc
+sed -i '/^nag=/d' "$TUI_RC"
+
+# Sync current context from ~/.taskrc into tui.rc so tui starts in the right context
+_current_context=$(grep -m1 '^context=' "${HOME}/.taskrc" 2>/dev/null | cut -d= -f2-)
+sed -i "s|^context=.*|context=${_current_context}|" "$TUI_RC"
+
+TASKRC="$TUI_RC" "$TUI_BIN" --taskrc "$TUI_RC" "$@"

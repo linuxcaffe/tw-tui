@@ -212,6 +212,7 @@ pub struct TaskwarriorTui {
 impl TaskwarriorTui {
   pub async fn new(report: &str, init_event_loop: bool) -> Result<Self> {
     let output = std::process::Command::new("task")
+      .arg("rc.hooks=off")
       .arg("rc.color=off")
       .arg("rc._forcecolor=off")
       .arg("rc.defaultwidth=0")
@@ -410,12 +411,13 @@ impl TaskwarriorTui {
   }
 
   pub fn get_context(&mut self) -> Result<()> {
-    let output = std::process::Command::new("task").arg("_get").arg("rc.context").output()?;
+    let output = std::process::Command::new("task").arg("rc.hooks=off").arg("_get").arg("rc.context").output()?;
     self.current_context = String::from_utf8_lossy(&output.stdout).to_string();
     self.current_context = self.current_context.strip_suffix('\n').unwrap_or("").to_string();
 
     // support new format for context
     let output = std::process::Command::new("task")
+      .arg("rc.hooks=off")
       .arg("_get")
       .arg(format!("rc.context.{}.read", self.current_context))
       .output()?;
@@ -425,6 +427,7 @@ impl TaskwarriorTui {
     // If new format is not used, check if old format is used
     if self.current_context_filter.is_empty() {
       let output = std::process::Command::new("task")
+        .arg("rc.hooks=off")
         .arg("_get")
         .arg(format!("rc.context.{}", self.current_context))
         .output()?;
@@ -1411,6 +1414,7 @@ impl TaskwarriorTui {
         let _tx = tx.clone();
         tokio::spawn(async move {
           let output = tokio::process::Command::new("task")
+            .arg("rc.hooks=off")
             .arg("rc.color=off")
             .arg("rc._forcecolor=off")
             .arg(format!("rc.defaultwidth={}", defaultwidth))
@@ -1641,12 +1645,15 @@ impl TaskwarriorTui {
     let mut task = std::process::Command::new("task");
 
     task
+      .arg("rc.hooks=off")
+      .arg("rc.gc=off")
+      .arg("rc.recurrence=off")
+      .arg("rc.verbose=nothing")
       .arg("rc.json.array=on")
       .arg("rc.confirmation=off")
       .arg("rc.json.depends.array=on")
       .arg("rc.color=off")
       .arg("rc._forcecolor=off");
-    // .arg("rc.verbose:override=false");
 
     task.arg("export");
 
@@ -1682,12 +1689,15 @@ impl TaskwarriorTui {
     let mut task = std::process::Command::new("task");
 
     task
+      .arg("rc.hooks=off")
+      .arg("rc.gc=off")
+      .arg("rc.recurrence=off")
+      .arg("rc.verbose=nothing")
       .arg("rc.json.array=on")
       .arg("rc.confirmation=off")
       .arg("rc.json.depends.array=on")
       .arg("rc.color=off")
       .arg("rc._forcecolor=off");
-    // .arg("rc.verbose:override=false");
 
     if let Some(args) = shlex::split(format!(r#"rc.report.{}.filter='{}'"#, self.report, self.filter.trim()).trim()) {
       for arg in args {
