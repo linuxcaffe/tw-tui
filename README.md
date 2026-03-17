@@ -67,13 +67,19 @@ The `tw-tui` wrapper script and `tui.rc` template fix this:
 
 ## Installation
 
-### Via [awesome-taskwarrior](https://github.com/linuxcaffe/awesome-taskwarrior)
+### Option 1 — Install script
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/linuxcaffe/tw-tui/v2-maintenance/tw-tui.install | bash
+```
+
+Installs the binary, wrapper script, and a starter `tui.rc` (preserves an existing one).
+
+### Option 2 — Via [awesome-taskwarrior](https://github.com/linuxcaffe/awesome-taskwarrior)
 
 ```bash
 tw -I tw-tui
 ```
-
-Installs the binary, wrapper script, and a starter `tui.rc` (preserves an existing one).
 
 ### Manual
 
