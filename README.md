@@ -81,7 +81,7 @@ Installs the binary, wrapper script, and a starter `tui.rc` (preserves an existi
 SCRIPTS=~/.task/scripts
 CONFIG=~/.task/config
 RELEASE=https://github.com/linuxcaffe/tw-tui/releases/download/25.4-tw26
-BASE=https://raw.githubusercontent.com/linuxcaffe/tw-tui/master
+BASE=https://raw.githubusercontent.com/linuxcaffe/tw-tui/v2-maintenance
 
 mkdir -p "$SCRIPTS" "$CONFIG"
 
@@ -130,6 +130,8 @@ Add them to `tui.rc`.
 
 ## Key bindings (defaults)
 
+Press **`?`** inside tw-tui for the full in-app keybinding reference.
+
 | Key | Action |
 |-----|--------|
 | `j` / `k` or `↓` / `↑` | Navigate list |
@@ -143,13 +145,13 @@ Add them to `tui.rc`.
 | `x` | Delete (with confirm) |
 | `m` | Modify |
 | `A` | Annotate |
+| `l` | Log task |
+| `t` | Toggle `next` tag |
+| `v` / `V` | Mark selected / mark all |
 | `c` | Context menu |
 | `/` | Filter |
 | `]` / `[` | Next / previous tab (Tasks · Projects · Calendar) |
-| `?` | Help |
 | `q` | Quit |
-
-Full key reference and customisation: [kdheepak.com/taskwarrior-tui/keybindings](https://kdheepak.com/taskwarrior-tui/keybindings/).
 
 ---
 
