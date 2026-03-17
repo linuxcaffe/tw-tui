@@ -415,24 +415,45 @@ impl TaskwarriorTui {
     self.current_context = String::from_utf8_lossy(&output.stdout).to_string();
     self.current_context = self.current_context.strip_suffix('\n').unwrap_or("").to_string();
 
-    // support new format for context
-    let output = std::process::Command::new("task")
-      .arg("rc.hooks=off")
-      .arg("_get")
-      .arg(format!("rc.context.{}.read", self.current_context))
-      .output()?;
-    self.current_context_filter = String::from_utf8_lossy(&output.stdout).to_string();
-    self.current_context_filter = self.current_context_filter.strip_suffix('\n').unwrap_or("").to_string();
-
-    // If new format is not used, check if old format is used
-    if self.current_context_filter.is_empty() {
+    // Use `task show` instead of `_get` — context names with ':' or ',' break DOM path lookups.
+    // Try new format (context.NAME.read) first, then fall back to old format (context.NAME).
+    self.current_context_filter = String::new();
+    if !self.current_context.is_empty() {
+      let read_key = format!("context.{}.read", self.current_context);
       let output = std::process::Command::new("task")
         .arg("rc.hooks=off")
-        .arg("_get")
-        .arg(format!("rc.context.{}", self.current_context))
+        .arg("rc.defaultwidth=0")
+        .arg("show")
+        .arg(&read_key)
         .output()?;
-      self.current_context_filter = String::from_utf8_lossy(&output.stdout).to_string();
-      self.current_context_filter = self.current_context_filter.strip_suffix('\n').unwrap_or("").to_string();
+      let data = String::from_utf8_lossy(&output.stdout);
+      let prefix = format!("{} ", read_key);
+      for line in data.lines() {
+        if line.starts_with(&prefix) {
+          self.current_context_filter = line[prefix.len()..].trim().to_string();
+          break;
+        }
+      }
+
+      // Old format fallback: context.NAME (no .read suffix)
+      if self.current_context_filter.is_empty() {
+        let old_key = format!("context.{}", self.current_context);
+        let output = std::process::Command::new("task")
+          .arg("rc.hooks=off")
+          .arg("rc.defaultwidth=0")
+          .arg("show")
+          .arg(&old_key)
+          .output()?;
+        let data = String::from_utf8_lossy(&output.stdout);
+        let prefix = format!("{} ", old_key);
+        for line in data.lines() {
+          // Only match exactly "context.NAME <value>", not "context.NAME.read" etc.
+          if line.starts_with(&prefix) && !line[prefix.len()..].starts_with('.') {
+            self.current_context_filter = line[prefix.len()..].trim().to_string();
+            break;
+          }
+        }
+      }
     }
     Ok(())
   }
@@ -1487,7 +1508,7 @@ impl TaskwarriorTui {
   pub fn context_select(&mut self) -> Result<()> {
     let i = self.contexts.table_state.current_selection().unwrap_or_default();
     let mut command = std::process::Command::new("task");
-    command.arg("context").arg(&self.contexts.rows[i].name);
+    command.arg("rc.hooks=off").arg("rc.verbose=nothing").arg("context").arg(&self.contexts.rows[i].name);
     command.output()?;
     Ok(())
   }
@@ -1705,14 +1726,14 @@ impl TaskwarriorTui {
       }
     }
 
-    if !self.current_context_filter.trim().is_empty() && self.task_version >= *TASKWARRIOR_VERSION_SUPPORTED {
+    // Pass context filter as explicit args — task export does not apply context
+    // filters from TASKRC automatically, and rc.context= override does not work either.
+    if !self.current_context_filter.trim().is_empty() {
       if let Some(args) = shlex::split(&self.current_context_filter) {
         for arg in args {
           task.arg(arg);
         }
       }
-    } else if !self.current_context_filter.trim().is_empty() {
-      task.arg(format!("'\\({}\\)'", self.current_context_filter));
     }
 
     task.arg("export");
@@ -2828,11 +2849,12 @@ impl TaskwarriorTui {
             if self.error.is_some() {
               self.previous_mode = Some(self.mode.clone());
               self.mode = Mode::Tasks(Action::Error);
-            } else if self.config.uda_context_menu_select_on_move {
-              self.mode = Mode::Tasks(Action::Report);
             } else {
               match self.context_select() {
-                Ok(_) => self.update(true).await?,
+                Ok(_) => {
+                  self.mode = Mode::Tasks(Action::Report);
+                  self.update(true).await?;
+                }
                 Err(e) => {
                   self.error = Some(e.to_string());
                   self.mode = Mode::Tasks(Action::Error);

@@ -143,6 +143,7 @@ impl TaskReportTable {
       s.to_string()
     } else {
       let output = Command::new("task")
+        .arg("rc.hooks=off")
         .arg("show")
         .arg("rc.defaultwidth=0")
         .arg(format!("report.{}.columns", report))
@@ -160,6 +161,7 @@ impl TaskReportTable {
     }
 
     let output = Command::new("task")
+      .arg("rc.hooks=off")
       .arg("show")
       .arg("rc.defaultwidth=0")
       .arg(format!("report.{}.labels", report))

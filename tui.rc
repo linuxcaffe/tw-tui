@@ -1,15 +1,15 @@
 # tui.rc — taskwarrior-tui configuration
-# Used as TASKRC for taskwarrior-tui so it never writes to ~/.taskrc
-# Launch with: taskwarrior-tui --taskrc ~/.task/config/tui.rc
+# Used as TASKRC so taskwarrior-tui never writes to ~/.taskrc.
+# The tw-tui wrapper launches with: TASKRC=~/.task/config/tui.rc
 
-# Include main taskrc for all standard config
+# Include your main taskrc — contexts, reports, hooks config all come in from here
 include ~/.taskrc
 
-# tui context (written here by 'task context <name>' inside tui)
-context=cmx:need,tod
+# tui writes context changes here (not to ~/.taskrc)
+# The tw-tui wrapper syncs this from ~/.taskrc before each launch.
+context=
 
-# taskwarrior-tui UDA config
+# taskwarrior-tui UDA settings — adjust to taste
 uda.taskwarrior-tui.task-report.show-info=true
 uda.taskwarrior-tui.task-report.looping=false
 uda.taskwarrior-tui.task-report.date-time-vague-more-precise=false
-nag=task 74 \"assemble realed expenses\" is scheduled for TODAY!
