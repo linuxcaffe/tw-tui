@@ -81,7 +81,7 @@ Installs the binary, wrapper script, and a starter `tui.rc` (preserves an existi
 tw -I tw-tui
 ```
 
-### Manual
+### Option 3 — Manual
 
 ```bash
 SCRIPTS=~/.task/scripts
